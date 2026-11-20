@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "API интернет-магазина «Лукошко»",
+  "description": "API интернет-магазина «Северяночка»",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",

@@ -509,7 +509,7 @@ app.get("/api/home", async (req, res) => {
 
 app.get("/api/stores", async (req, res) => {
     const result = await pool.query(
-        `SELECT id, district, address, phone, hours, map_x::float8 AS map_x, map_y::float8 AS map_y
+        `SELECT id, district, address, phone, hours, lat::float8 AS lat, lng::float8 AS lng
          FROM stores ORDER BY id`)
     res.json(result.rows)
 })

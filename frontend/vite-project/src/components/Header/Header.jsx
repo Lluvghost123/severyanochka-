@@ -59,7 +59,7 @@ export default function Header() {
         <div className="header_center">
           <Link to="/" className="header_logo">
             <img className="header_logo_img" src={logo} alt="" />
-            <span className="header_logo_text">ЛУКОШКО</span>
+            <span className="header_logo_text">СЕВЕРЯНОЧКА</span>
           </Link>
 
           <div

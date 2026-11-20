@@ -8,8 +8,8 @@ export default function Footer() {
     <footer className="footer">
       <div className="footer_center">
         <Link to="/" className="footer_logo">
-          <img className="footer_logo_img" src={logo} alt="Лукошко" />
-          <span className="footer_logo_text">ЛУКОШКО</span>
+          <img className="footer_logo_img" src={logo} alt="Северяночка" />
+          <span className="footer_logo_text">СЕВЕРЯНОЧКА</span>
         </Link>
 
         <nav className="footer_nav">

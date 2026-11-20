@@ -187,7 +187,7 @@ export default function Product() {
                   <span className="product_price_main">{formatPrice(hasCardPrice ? product.card_price : product.price)}</span>
                   {hasCardPrice && (
                     <span className="product_price_label">
-                      С картой Лукошко
+                      С картой Северяночка
                       <span className="product_price_hint" title="Цена действует при предъявлении карты покупателя"><IconInfo size={22} /></span>
                     </span>
                   )}

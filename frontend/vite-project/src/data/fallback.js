@@ -33,9 +33,9 @@ export const fallbackPromo = [
 
 export const fallbackNews = [
   card(18, 'Колбаса сырокопчёная Салями Премиум Фирменная, 400 г', 599.99, null, null, '/images/products/salami_long.png', 4, { is_new: true }),
-  card(7, 'Молоко питьевое Лукошко пастеризованное 3,2%, 1 л', 89.9, null, null, '/images/products/milk.png', 4, { is_new: true }),
-  card(20, 'Сосиски Лукошко Молочные, 400 г', 129, null, null, '/images/products/sausages.png', 3.5, { is_new: true }),
-  card(8, 'Кефир Лукошко 2,5%, 900 мл', 74.9, null, null, '/images/products/milk.png', 4, { is_new: true }),
+  card(7, 'Молоко питьевое Северяночка пастеризованное 3,2%, 1 л', 89.9, null, null, '/images/products/milk.png', 4, { is_new: true }),
+  card(20, 'Сосиски Северяночка Молочные, 400 г', 129, null, null, '/images/products/sausages.png', 3.5, { is_new: true }),
+  card(8, 'Кефир Северяночка 2,5%, 900 мл', 74.9, null, null, '/images/products/milk.png', 4, { is_new: true }),
 ];
 
 export const fallbackBought = [
@@ -46,19 +46,19 @@ export const fallbackBought = [
 ];
 
 export const fallbackOffers = [
-  { id: 1, title: 'Оформите карту «Лукошко»', text: 'И получайте бонусы при покупке в магазинах и на сайте', variant: 'peach' },
+  { id: 1, title: 'Оформите карту «Северяночка»', text: 'И получайте бонусы при покупке в магазинах и на сайте', variant: 'peach' },
   { id: 2, title: 'Покупайте акционные товары', text: 'И получайте вдвое больше бонусов', variant: 'green' },
 ];
 
 export const fallbackStores = [
-  { id: 1, district: 'Центральный', address: 'г. Сыктывкар, ул. Коммунистическая, 25', phone: '8 800 777 33 33', hours: 'ежедневно 8:00–23:00', map_x: 45.4, map_y: 39.7 },
-  { id: 2, district: 'Строитель', address: 'г. Сыктывкар, ул. Морозова, 54', phone: '8 800 777 33 33', hours: 'ежедневно 8:00–22:00', map_x: 22.9, map_y: 30.6 },
-  { id: 3, district: 'Юго-Западный', address: 'г. Сыктывкар, Октябрьский пр-т, 140', phone: '8 800 777 33 33', hours: 'ежедневно 8:00–22:00', map_x: 25, map_y: 72.8 },
-  { id: 4, district: 'Кируль', address: 'г. Сыктывкар, ул. Савина, 17', phone: '8 800 777 33 33', hours: 'ежедневно 9:00–21:00', map_x: 78, map_y: 52.7 },
+  { id: 1, district: 'Центральный', address: 'г. Сыктывкар, ул. Коммунистическая, 25', phone: '8 800 777 33 33', hours: 'ежедневно 8:00–23:00', lat: 61.6689, lng: 50.833 },
+  { id: 2, district: 'Строитель', address: 'г. Сыктывкар, ул. Морозова, 54', phone: '8 800 777 33 33', hours: 'ежедневно 8:00–22:00', lat: 61.662, lng: 50.79 },
+  { id: 3, district: 'Юго-Западный', address: 'г. Сыктывкар, Октябрьский пр-т, 140', phone: '8 800 777 33 33', hours: 'ежедневно 8:00–22:00', lat: 61.656, lng: 50.772 },
+  { id: 4, district: 'Кируль', address: 'г. Сыктывкар, ул. Савина, 17', phone: '8 800 777 33 33', hours: 'ежедневно 9:00–21:00', lat: 61.642, lng: 50.86 },
 ];
 
 export const fallbackArticles = [
-  { id: 1, title: 'Режим использования масок и перчаток на территории магазинов', preview: 'Подробная информация о режимах использования масок и перчаток на территории магазинов «Лукошко». Информация обновляется каждый будний день.', image: '/images/articles/article_1.jpg', published_at: '2026-03-05' },
+  { id: 1, title: 'Режим использования масок и перчаток на территории магазинов', preview: 'Подробная информация о режимах использования масок и перчаток на территории магазинов «Северяночка». Информация обновляется каждый будний день.', image: '/images/articles/article_1.jpg', published_at: '2026-03-05' },
   { id: 2, title: 'Весеннее настроение для каждого', preview: '8 Марта – это не просто Международный женский день, это ещё день тюльпанов, приятных сюрпризов и праздничных тёплых пожеланий.', image: '/images/articles/article_2.jpg', published_at: '2026-03-05' },
   { id: 3, title: 'ЗОЖ или ФАСТФУД. А вы на чьей стороне? Голосуем!', preview: 'Голосуйте за любимые категории, выбирайте категорию-победителя в мобильном приложении и получайте кешбэк 10% баллами в апреле!', image: '/images/articles/article_3.jpg', published_at: '2026-02-22' },
 ];
