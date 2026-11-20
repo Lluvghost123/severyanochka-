@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="260" height="190" viewBox="0 0 260 190">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2E9BE5"/><stop offset="1" stop-color="#0E4A97"/></linearGradient>
+<filter id="s" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#B8643A" flood-opacity=".35"/></filter></defs>
+<g transform="rotate(-22 130 95)" filter="url(#s)">
+<rect x="30" y="42" width="200" height="124" rx="14" fill="url(#g)"/>
+<path d="M30 130 C80 100 130 150 230 112 L230 152 a14 14 0 0 1 -14 14 H44 a14 14 0 0 1 -14 -14z" fill="#0A3A7A" opacity=".75"/>
+<g transform="translate(48 58) scale(.95)"><path d="M11 17 C11 1 33 1 33 17" fill="none" stroke="#9BE37F" stroke-width="3.6" stroke-linecap="round"/><path d="M3 17h38l-3.6 18.4a4.5 4.5 0 0 1-4.4 3.6H11a4.5 4.5 0 0 1-4.4-3.6z" fill="#FF6633"/></g>
+<text x="104" y="86" fill="#fff" font-family="Rubik, Arial, sans-serif" font-weight="700" font-size="20" letter-spacing="2">ЛУКОШКО</text>
+<text x="48" y="146" fill="#CFE8FF" font-family="Rubik, Arial, sans-serif" font-size="11" letter-spacing="1.5">КАРТА ПОКУПАТЕЛЯ</text></g></svg>

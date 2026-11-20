@@ -1,0 +1,59 @@
+$bg-main: #FBF8EC;
+$bg-white: #FFFFFF;
+$bg-gray: #F3F2F1;
+$bg-footer: #F9F4E2;
+
+$green: #70C05B;
+$green-hover: #5DAE48;
+$green-light: #E5FFDE;
+$orange: #FF6633;
+$orange-hover: #EB5421;
+$peach: #FFD1BA;
+$peach-card: #FCD5BA;
+
+$text: #414141;
+$text-gray: #606060;
+$text-light: #BFBFBF;
+$border: #D9D9D9;
+
+$shadow-card: 0 2px 4px rgba(0, 0, 0, 0.15);
+$shadow-hover: 0 10px 28px rgba(255, 102, 51, 0.28);
+$shadow-header: 0 2px 6px rgba(0, 0, 0, 0.12);
+
+$font: 'Rubik', Arial, sans-serif;
+$trans: 0.2s ease;
+
+@mixin tablet {
+  @media (max-width: 1100px) { @content; }
+}
+
+@mixin mobile {
+  @media (max-width: 640px) { @content; }
+}
+
+@mixin container {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 16px;
+
+  @include mobile {
+    padding: 0 12px;
+  }
+}
+
+@mixin grid_products($desktop: 4) {
+  display: grid;
+  grid-template-columns: repeat($desktop, 1fr);
+  gap: 40px;
+
+  @include tablet {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+
+  @include mobile {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}

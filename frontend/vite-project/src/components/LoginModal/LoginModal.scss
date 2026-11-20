@@ -1,0 +1,169 @@
+@use '../../styles/variables.scss' as *;
+
+.login_overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  background: rgba(255, 196, 160, 0.78);
+
+  .login_modal {
+    position: relative;
+    width: 420px;
+    max-width: 100%;
+    background: #fff;
+    box-shadow: 0 8px 32px rgba(255, 102, 51, 0.18);
+
+    .login_close {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: $bg-gray;
+      color: $text;
+      transition: color $trans;
+
+      &:hover {
+        color: $orange;
+      }
+    }
+
+    .login_form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 70px 80px 44px;
+
+      .login_title {
+        font-size: 24px;
+        line-height: 32px;
+        font-weight: 700;
+        margin-bottom: 44px;
+        text-align: center;
+      }
+
+      .login_text {
+        font-size: 14px;
+        line-height: 22px;
+        color: $text-gray;
+        text-align: center;
+        margin-bottom: 28px;
+      }
+
+      .login_field {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 24px;
+
+        .login_label {
+          font-size: 16px;
+          color: $text-gray;
+          margin-bottom: 4px;
+        }
+
+        .login_input {
+          width: 100%;
+          height: 60px;
+          padding: 0 16px;
+          font-size: 24px;
+          color: $text;
+          border: 1px solid $green;
+          border-radius: 2px;
+          box-shadow: 0 0 6px rgba(112, 192, 91, 0.35);
+        }
+      }
+
+      .login_error {
+        width: 100%;
+        margin: -8px 0 12px;
+        font-size: 13px;
+        color: $orange;
+        text-align: center;
+      }
+
+      .login_submit {
+        width: 100%;
+        height: 68px;
+        margin-top: 8px;
+        background: $peach;
+        color: $orange;
+        font-size: 24px;
+        border-radius: 2px;
+        cursor: default;
+        transition: background $trans, color $trans;
+
+        &.active {
+          background: $orange;
+          color: #fff;
+          cursor: pointer;
+
+          &:hover {
+            background: $orange-hover;
+          }
+        }
+      }
+
+      .login_links {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        margin-top: 32px;
+
+        .login_register {
+          height: 32px;
+          padding: 0 22px;
+          border: 1px solid $green;
+          border-radius: 2px;
+          color: $green;
+          font-size: 13px;
+          transition: background $trans, color $trans;
+
+          &:hover {
+            background: $green;
+            color: #fff;
+          }
+        }
+
+        .login_forgot {
+          font-size: 13px;
+          color: $text;
+
+          &:hover {
+            color: $orange;
+          }
+        }
+      }
+
+      .login_demo {
+        margin-top: 20px;
+        font-size: 12px;
+        color: $text-light;
+        transition: color $trans;
+
+        &:hover {
+          color: $green;
+        }
+      }
+    }
+  }
+
+  @include mobile {
+    .login_modal .login_form {
+      padding: 64px 24px 32px;
+
+      .login_submit {
+        height: 56px;
+        font-size: 20px;
+      }
+    }
+  }
+}

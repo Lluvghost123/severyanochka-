@@ -1,0 +1,125 @@
+@use '../../styles/variables.scss' as *;
+
+.offers {
+  padding-top: 112px;
+
+  .offers_center {
+    @include container;
+
+    .offers_heading {
+      font-size: 32px;
+      line-height: 40px;
+      font-weight: 700;
+      margin-bottom: 40px;
+    }
+
+    .offers_grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+
+      .offers_card {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+        border-radius: 2px;
+
+        &.peach {
+          background: $peach-card;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.18);
+        }
+
+        &.green {
+          background: $green-light;
+        }
+
+        .offers_text {
+          position: relative;
+          z-index: 1;
+          padding: 36px 0 0 40px;
+          max-width: 300px;
+
+          .offers_title {
+            font-size: 24px;
+            line-height: 36px;
+            font-weight: 700;
+            color: $text;
+          }
+
+          .offers_desc {
+            margin-top: 12px;
+            font-size: 16px;
+            line-height: 24px;
+            color: $text;
+          }
+        }
+
+        .offers_img {
+          position: absolute;
+          right: 8px;
+          bottom: 0;
+          height: 190px;
+          width: auto;
+        }
+
+        &.green .offers_img {
+          right: 0;
+          height: 199px;
+        }
+      }
+    }
+  }
+
+  @include tablet {
+    padding-top: 80px;
+
+    .offers_center {
+      .offers_heading {
+        font-size: 24px;
+        line-height: 32px;
+        margin-bottom: 24px;
+      }
+
+      .offers_grid {
+        gap: 32px;
+
+        .offers_card {
+          height: 170px;
+
+          .offers_text {
+            padding: 24px 0 0 20px;
+            max-width: 190px;
+
+            .offers_title {
+              font-size: 18px;
+              line-height: 27px;
+            }
+
+            .offers_desc {
+              font-size: 12px;
+              line-height: 18px;
+              margin-top: 8px;
+            }
+          }
+
+          .offers_img {
+            height: 150px;
+          }
+
+          &.green .offers_img {
+            height: 170px;
+          }
+        }
+      }
+    }
+  }
+
+  @include mobile {
+    padding-top: 48px;
+
+    .offers_center .offers_grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+  }
+}

@@ -1,0 +1,43 @@
+@use '../../styles/variables.scss' as *;
+
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding-top: 28px;
+  font-size: 12px;
+  line-height: 16px;
+
+  .breadcrumbs_item {
+    display: inline-flex;
+    align-items: center;
+
+    .breadcrumbs_link {
+      color: $text;
+      transition: color $trans;
+
+      &:hover {
+        color: $orange;
+      }
+    }
+
+    .breadcrumbs_current {
+      color: $text-gray;
+    }
+
+    .breadcrumbs_sep {
+      display: inline-flex;
+      margin: 0 12px;
+      color: $text-gray;
+    }
+  }
+
+  @include mobile {
+    padding-top: 16px;
+    font-size: 10px;
+
+    .breadcrumbs_item .breadcrumbs_sep {
+      margin: 0 8px;
+    }
+  }
+}

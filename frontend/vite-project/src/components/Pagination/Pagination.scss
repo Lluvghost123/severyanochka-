@@ -1,0 +1,58 @@
+@use '../../styles/variables.scss' as *;
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 40px;
+
+  .pagination_page {
+    min-width: 40px;
+    height: 40px;
+    font-size: 16px;
+    color: $text;
+    transition: color $trans;
+
+    &:hover {
+      color: $orange;
+    }
+
+    &.active {
+      color: $orange;
+      cursor: default;
+    }
+  }
+
+  .pagination_gap {
+    color: $text-gray;
+  }
+
+  .pagination_arrow {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: $text;
+    transition: color $trans;
+
+    &:hover:not(:disabled) {
+      color: $orange;
+    }
+
+    &:disabled {
+      color: $text-light;
+      cursor: default;
+    }
+  }
+
+  @include mobile {
+    gap: 0;
+
+    .pagination_page,
+    .pagination_arrow {
+      min-width: 36px;
+    }
+  }
+}

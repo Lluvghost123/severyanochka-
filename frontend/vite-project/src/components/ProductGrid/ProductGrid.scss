@@ -1,0 +1,9 @@
+@use '../../styles/variables.scss' as *;
+
+.product_grid {
+  @include grid_products(4);
+
+  &.columns_3 {
+    @include grid_products(3);
+  }
+}

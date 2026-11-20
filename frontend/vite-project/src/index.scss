@@ -1,0 +1,161 @@
+@use './styles/variables.scss' as *;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  min-height: 100vh;
+  background-color: $bg-main;
+  color: $text;
+  font-family: $font;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  outline: none;
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+}
+
+input, textarea {
+  font-family: inherit;
+  outline: none;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+img {
+  display: block;
+}
+
+.page_wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  .page_main {
+    flex: 1;
+    width: 100%;
+    padding-bottom: 80px;
+
+    @include mobile {
+      padding-bottom: 24px;
+    }
+  }
+}
+
+.page_container {
+  @include container;
+}
+
+.page_title {
+  font-size: 48px;
+  line-height: 56px;
+  font-weight: 700;
+  color: $text;
+  margin: 36px 0 80px;
+
+  @include tablet {
+    font-size: 40px;
+    line-height: 48px;
+    margin: 20px 0 32px;
+  }
+
+  @include mobile {
+    font-size: 32px;
+    line-height: 40px;
+    margin: 16px 0 24px;
+  }
+}
+
+.section_title_row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+
+  .section_title {
+    font-size: 32px;
+    line-height: 40px;
+    font-weight: 700;
+    color: $text;
+
+    @include tablet {
+      font-size: 24px;
+      line-height: 32px;
+    }
+  }
+
+  .section_link {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 16px;
+    color: $text-gray;
+    transition: color $trans;
+
+    &:hover {
+      color: $orange;
+    }
+
+    @include tablet {
+      font-size: 14px;
+      gap: 12px;
+    }
+  }
+
+  @include tablet {
+    margin-bottom: 24px;
+  }
+}
+
+.empty_state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 80px 0;
+  text-align: center;
+  color: $text-gray;
+
+  .empty_state_title {
+    font-size: 24px;
+    font-weight: 700;
+    color: $text;
+  }
+
+  .empty_state_btn {
+    margin-top: 8px;
+    padding: 12px 32px;
+    background: $orange;
+    color: #fff;
+    border-radius: 2px;
+    font-size: 16px;
+    transition: background $trans;
+
+    &:hover {
+      background: $orange-hover;
+    }
+  }
+}

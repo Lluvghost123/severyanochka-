@@ -1,0 +1,481 @@
+@use '../../styles/variables.scss' as *;
+
+.header {
+  position: relative;
+  z-index: 100;
+  height: 72px;
+  background: #fff;
+  box-shadow: $shadow-header;
+
+  .header_center {
+    @include container;
+    height: 100%;
+    display: flex;
+    align-items: center;
+
+    .header_logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 192px;
+      flex-shrink: 0;
+
+      .header_logo_img {
+        width: 40px;
+        height: 36px;
+      }
+
+      .header_logo_text {
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: $text;
+      }
+    }
+
+    .header_catalog {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      margin-right: 16px;
+
+      .header_catalog_btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        width: 140px;
+        height: 40px;
+        background: $green;
+        color: #fff;
+        font-size: 16px;
+        border-radius: 2px;
+        transition: background $trans;
+
+        &:hover,
+        &.open {
+          background: $green-hover;
+        }
+      }
+
+      .header_menu {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 72px;
+        background: #fff;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.14);
+        z-index: 120;
+
+        .header_menu_center {
+          @include container;
+          padding-top: 28px;
+          padding-bottom: 20px;
+
+          .header_menu_list {
+            column-count: 4;
+            column-gap: 40px;
+
+            .header_menu_item {
+              break-inside: avoid;
+              height: 48px;
+              display: flex;
+              align-items: center;
+
+              .header_menu_link {
+                font-size: 16px;
+                font-weight: 700;
+                color: $text;
+                transition: color $trans;
+
+                &:hover {
+                  color: $orange;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .header_search {
+      position: relative;
+      flex: 0 1 375px;
+      min-width: 0;
+      height: 40px;
+      z-index: 130;
+
+      .header_search_form {
+        position: relative;
+        height: 40px;
+        background: #fff;
+        border: 1px solid $green;
+        border-radius: 2px;
+
+        .header_search_input {
+          width: 100%;
+          height: 38px;
+          padding: 0 48px 0 15px;
+          border: none;
+          background: transparent;
+          font-size: 16px;
+          color: $text;
+
+          &::placeholder {
+            color: $text-light;
+          }
+        }
+
+        .header_search_btn {
+          position: absolute;
+          right: 0;
+          top: 0;
+          width: 44px;
+          height: 38px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          color: $text-gray;
+        }
+      }
+
+      .header_search_list {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 39px;
+        padding: 0 0 6px;
+        background: #fff;
+        border: 1px solid $green;
+        border-top: none;
+        border-radius: 0 0 2px 2px;
+
+        .header_search_item {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 8px 15px;
+          text-align: left;
+          font-size: 16px;
+          line-height: 18px;
+          color: $text;
+
+          b {
+            font-weight: 700;
+          }
+
+          svg {
+            color: $text-light;
+          }
+
+          &:hover {
+            background: $bg-gray;
+          }
+        }
+      }
+    }
+
+    .header_actions {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      margin-left: 40px;
+
+      .header_action {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        font-size: 12px;
+        line-height: 16px;
+        color: $text-gray;
+        transition: color $trans;
+
+        .header_action_icon {
+          position: relative;
+          display: flex;
+          line-height: 0;
+        }
+
+        .header_action_dot {
+          position: absolute;
+          top: -1px;
+          right: 6px;
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: $orange;
+        }
+
+        &:hover,
+        &.active {
+          color: $orange;
+        }
+      }
+    }
+
+    .header_profile {
+      position: relative;
+      margin-left: auto;
+
+      .header_profile_btn,
+      .header_login_btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 16px;
+        color: $text;
+      }
+
+      .header_login_btn {
+        color: $text-gray;
+
+        &:hover {
+          color: $orange;
+        }
+      }
+
+      .header_profile_arrow {
+        display: flex;
+        margin-left: 28px;
+        color: $text-gray;
+        transition: transform $trans;
+
+        &.open {
+          transform: rotate(180deg);
+        }
+      }
+
+      .header_profile_menu {
+        position: absolute;
+        right: 0;
+        top: 54px;
+        min-width: 200px;
+        padding: 8px 0;
+        background: #fff;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16);
+        z-index: 140;
+
+        .header_profile_bonus {
+          padding: 10px 20px;
+          font-size: 14px;
+          color: $text-gray;
+          border-bottom: 1px solid $bg-gray;
+
+          b {
+            color: $green;
+          }
+        }
+
+        .header_profile_link {
+          display: block;
+          width: 100%;
+          padding: 10px 20px;
+          text-align: left;
+          font-size: 15px;
+          color: $text;
+
+          &:hover {
+            background: $bg-gray;
+            color: $orange;
+          }
+        }
+      }
+    }
+
+    .header_avatar {
+      display: flex;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: $bg-gray;
+
+      .header_avatar_img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .header_avatar_empty {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 18px;
+        color: $text-gray;
+      }
+    }
+  }
+
+  .header_action_badge {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    min-width: 14px;
+    height: 14px;
+    padding: 0 3px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 7px;
+    background: $orange;
+    color: #fff;
+    font-size: 9px;
+    line-height: 1;
+  }
+
+  @include tablet {
+    .header_center {
+      .header_logo {
+        width: auto;
+        margin-right: 16px;
+
+        .header_logo_text {
+          display: none;
+        }
+      }
+
+      .header_catalog {
+        margin-right: 20px;
+
+        .header_catalog_btn {
+          width: 40px;
+
+          .header_catalog_label {
+            display: none;
+          }
+        }
+
+        .header_menu .header_menu_center .header_menu_list {
+          column-count: 3;
+          column-gap: 32px;
+        }
+      }
+
+      .header_search {
+        flex: 1 1 auto;
+      }
+
+      .header_actions {
+        gap: 18px;
+        margin-left: 20px;
+      }
+
+      .header_profile {
+        margin-left: 24px;
+
+        .header_profile_name,
+        .header_profile_arrow {
+          display: none;
+        }
+      }
+    }
+  }
+
+  @include mobile {
+    height: 56px;
+
+    .header_center {
+      .header_logo {
+        margin-right: 20px;
+
+        .header_logo_img {
+          width: 36px;
+          height: 32px;
+        }
+      }
+
+      .header_catalog,
+      .header_actions,
+      .header_profile {
+        display: none;
+      }
+
+      .header_search {
+        flex: 1 1 auto;
+      }
+    }
+  }
+}
+
+.bottom_nav {
+  display: none;
+
+  @include mobile {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 110;
+    height: 56px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: #fff;
+    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+
+    .bottom_nav_item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      min-width: 56px;
+      font-size: 10px;
+      line-height: 12px;
+      color: $text-gray;
+
+      .bottom_nav_icon {
+        position: relative;
+        display: flex;
+      }
+
+      &.active {
+        color: $orange;
+      }
+
+      &.profile .header_avatar {
+        display: flex;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: $bg-gray;
+
+        .header_avatar_img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .header_avatar_empty {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+      }
+
+      .header_action_badge {
+        position: absolute;
+        top: -6px;
+        right: -8px;
+        min-width: 14px;
+        height: 14px;
+        padding: 0 3px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 7px;
+        background: $orange;
+        color: #fff;
+        font-size: 9px;
+        line-height: 1;
+      }
+    }
+  }
+}

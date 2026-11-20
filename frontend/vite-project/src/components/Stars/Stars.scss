@@ -1,0 +1,30 @@
+.stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  .stars_item {
+    position: relative;
+    display: block;
+    width: var(--star-size);
+    height: var(--star-size);
+    line-height: 0;
+
+    .stars_base {
+      display: block;
+    }
+
+    .stars_fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      overflow: hidden;
+      display: block;
+    }
+  }
+
+  &.interactive .stars_item {
+    cursor: pointer;
+  }
+}

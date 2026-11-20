@@ -1,0 +1,95 @@
+@use '../../styles/variables.scss' as *;
+
+.catalog_grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 200px;
+  gap: 40px;
+
+  .catalog_tile {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    background-size: cover;
+    background-position: center;
+    border-radius: 2px;
+    overflow: hidden;
+    box-shadow: $shadow-card;
+    transition: box-shadow $trans;
+
+    // при наведении плитка окрашивается в оранжевый (как в макете)
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(255, 102, 51, 0.18) 0%, rgba(255, 102, 51, 0.55) 55%, $orange 100%);
+      opacity: 0;
+      transition: opacity $trans;
+    }
+
+    .catalog_tile_title {
+      position: relative;
+      z-index: 1;
+      padding: 0 10px 14px;
+      font-size: 18px;
+      line-height: 27px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    &:hover {
+      box-shadow: $shadow-hover;
+
+      &::after {
+        opacity: 1;
+      }
+    }
+
+    &:nth-child(1),
+    &:nth-child(10),
+    &:nth-child(12) {
+      grid-column: span 2;
+    }
+  }
+
+  @include tablet {
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 140px;
+    gap: 32px;
+
+    .catalog_tile {
+      .catalog_tile_title {
+        font-size: 16px;
+        line-height: 27px;
+        padding-bottom: 12px;
+      }
+
+      &:nth-child(12) {
+        grid-column: span 1;
+      }
+    }
+  }
+
+  @include mobile {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 140px;
+    gap: 16px;
+
+    .catalog_tile {
+      .catalog_tile_title {
+        font-size: 14px;
+        line-height: 27px;
+        overflow-wrap: anywhere;
+      }
+
+      &:nth-child(12) {
+        grid-column: span 2;
+        order: 13;
+      }
+
+      &:nth-child(13) {
+        order: 12;
+      }
+    }
+  }
+}

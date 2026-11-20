@@ -1,0 +1,147 @@
+@use '../../styles/variables.scss' as *;
+
+.stores {
+  padding-top: 108px;
+
+  .stores_center {
+    @include container;
+
+    .stores_heading {
+      font-size: 32px;
+      line-height: 40px;
+      font-weight: 700;
+      margin-bottom: 40px;
+    }
+
+    .stores_tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+
+      .stores_tab {
+        height: 32px;
+        padding: 0 16px;
+        background: $bg-gray;
+        color: $text-gray;
+        font-size: 13px;
+        border-radius: 2px;
+        transition: background $trans, color $trans;
+
+        &:hover {
+          color: $orange;
+        }
+
+        &.active {
+          background: $green;
+          color: #fff;
+        }
+      }
+    }
+
+    .stores_map {
+      border-radius: 4px;
+      overflow: hidden;
+      background: #fff;
+
+      .stores_map_canvas {
+        position: relative;
+        width: 100%;
+
+        .stores_map_img {
+          width: 100%;
+          height: auto;
+        }
+
+        .stores_pin {
+          position: absolute;
+          transform: translate(-50%, -100%);
+          color: $green;
+          line-height: 0;
+          transition: color $trans, transform $trans;
+
+          &:hover {
+            color: $green-hover;
+          }
+
+          &.active {
+            color: $orange;
+            transform: translate(-50%, -100%) scale(1.2);
+            z-index: 2;
+          }
+        }
+
+        .stores_info {
+          position: absolute;
+          transform: translate(-50%, calc(-100% - 56px));
+          min-width: 220px;
+          padding: 12px 16px;
+          background: #fff;
+          border-radius: 4px;
+          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+          z-index: 3;
+          pointer-events: none;
+
+          &.below {
+            transform: translate(-50%, 18px);
+
+            &::after {
+              bottom: auto;
+              top: -6px;
+            }
+          }
+
+          &::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -6px;
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            transform: translateX(-50%) rotate(45deg);
+          }
+
+          .stores_info_title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+          }
+
+          .stores_info_text {
+            font-size: 12px;
+            line-height: 18px;
+            color: $text-gray;
+          }
+        }
+      }
+    }
+  }
+
+  @include tablet {
+    padding-top: 72px;
+
+    .stores_center .stores_heading {
+      font-size: 24px;
+      line-height: 32px;
+      margin-bottom: 24px;
+    }
+  }
+
+  @include mobile {
+    padding-top: 48px;
+
+    .stores_center .stores_map {
+      overflow-x: auto;
+
+      .stores_map_canvas {
+        width: 1160px;
+        height: 340px;
+
+        .stores_map_img {
+          height: 100%;
+        }
+      }
+    }
+  }
+}

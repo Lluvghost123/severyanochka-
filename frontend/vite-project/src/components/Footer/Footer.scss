@@ -1,0 +1,130 @@
+@use '../../styles/variables.scss' as *;
+
+.footer {
+  margin-top: auto;
+  background-color: $bg-footer;
+  background-image: url('../../assets/images/pattern_footer.svg');
+  background-size: 320px 186px;
+  padding: 36px 0 48px;
+
+  .footer_center {
+    @include container;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+
+    .footer_logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      width: 112px;
+
+      .footer_logo_img {
+        width: 36px;
+        height: 32px;
+      }
+
+      .footer_logo_text {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+    }
+
+    .footer_nav {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px 40px;
+      flex: 1;
+
+      .footer_link {
+        font-size: 12px;
+        color: $text;
+        transition: color $trans;
+
+        &:hover {
+          color: $orange;
+        }
+      }
+    }
+
+    .footer_socials {
+      display: flex;
+      gap: 20px;
+
+      .footer_social {
+        display: flex;
+        transition: transform $trans;
+
+        &:hover {
+          transform: translateY(-2px);
+        }
+      }
+    }
+
+    .footer_phone {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 18px;
+      color: $text;
+      white-space: nowrap;
+    }
+  }
+
+  @include tablet {
+    padding: 28px 0 32px;
+
+    .footer_center {
+      flex-wrap: wrap;
+      gap: 20px 24px;
+
+      .footer_nav {
+        order: 3;
+        flex: 0 0 100%;
+        gap: 10px 28px;
+      }
+
+      .footer_socials {
+        margin-left: auto;
+      }
+    }
+  }
+
+  @include mobile {
+    padding: 24px 0 80px;
+
+    .footer_center {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px 16px;
+
+      .footer_logo {
+        width: auto;
+        grid-column: 1;
+        grid-row: 1;
+      }
+
+      .footer_socials {
+        grid-column: 2;
+        grid-row: 1;
+        margin-left: 0;
+        gap: 14px;
+      }
+
+      .footer_phone {
+        grid-column: 1 / 3;
+        grid-row: 2;
+        font-size: 16px;
+      }
+
+      .footer_nav {
+        grid-column: 1 / 3;
+        grid-row: 3;
+        gap: 10px 18px;
+      }
+    }
+  }
+}

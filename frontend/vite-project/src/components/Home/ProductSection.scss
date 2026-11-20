@@ -1,0 +1,25 @@
+@use '../../styles/variables.scss' as *;
+
+.product_section {
+  padding-top: 88px;
+
+  .product_section_center {
+    @include container;
+  }
+
+  @include tablet {
+    padding-top: 64px;
+
+    .product_grid > :nth-child(4) {
+      display: none;
+    }
+  }
+
+  @include mobile {
+    padding-top: 48px;
+
+    .product_grid > :nth-child(4) {
+      display: block;
+    }
+  }
+}
