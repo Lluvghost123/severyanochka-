@@ -1,8 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
-import { api, toQuery } from '../../api/api.js';
-import { useCategories } from '../../utils/useCategories.js';
-import { useTitle } from '../../utils/useTitle.js';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { fallbackCategories } from '../../data/fallback.js';
 import Header from '../../components/Header/Header.jsx';
 import Footer from '../../components/Footer/Footer.jsx';
 import Breadcrumbs from '../../components/Breadcrumbs/Breadcrumbs.jsx';
@@ -11,160 +9,113 @@ import Pagination from '../../components/Pagination/Pagination.jsx';
 import { IconClose } from '../../components/Icons/Icons.jsx';
 import './Category.scss';
 
-const LIMIT = 6;
-const TAGS = [
-  { key: 'own', title: 'Товары нашего производства' },
-  { key: 'healthy', title: 'Полезное питание' },
-  { key: 'nogmo', title: 'Без ГМО' },
+const STEP = 6;
+
+const tagList = [
+  { key: 'is_own', title: 'Товары нашего производства' },
+  { key: 'is_healthy', title: 'Полезное питание' },
+  { key: 'is_nogmo', title: 'Без ГМО' },
 ];
 
-const splitList = (value) => (value ? value.split(',').filter(Boolean) : []);
+// цена, которую видит покупатель с картой
+const getPrice = (p) => Number(p.card_price || p.price);
 
 export default function Category() {
   const { slug } = useParams();
-  const categories = useCategories();
-  const category = categories.find((c) => c.slug === slug);
-  useTitle(category ? category.title : 'Категория');
+  const category = fallbackCategories.find(c => c.slug === slug);
 
-  const [params, setParams] = useSearchParams();
-  const subs = splitList(params.get('sub'));
-  const tags = splitList(params.get('tags'));
-  const minParam = params.get('min') || '';
-  const maxParam = params.get('max') || '';
-  const inStock = params.get('inStock') === '1';
-  const urlPage = parseInt(params.get('page'), 10) || 1;
-
-  const [items, setItems] = useState([]);
-  const [loaded, setLoaded] = useState(urlPage);
-  const [meta, setMeta] = useState({ total: 0, pages: 1, priceRange: { min: 0, max: 0 } });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  // черновик фильтра в боковой панели — применяется кнопкой «Применить»
-  const [draft, setDraft] = useState({ subs, min: minParam, max: maxParam, inStock });
+  const [products, setProducts] = useState([]);
+  const [error, setError] = useState(false);
+  const [shown, setShown] = useState(STEP);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [tags, setTags] = useState([]);
 
-  const filtersKey = `${slug}|${subs}|${tags}|${minParam}|${maxParam}|${inStock}|${urlPage}`;
-
-  useEffect(() => {
-    setDraft({ subs, min: minParam, max: maxParam, inStock });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug, params.get('sub'), params.get('min'), params.get('max'), params.get('inStock')]);
-
-  const fetchPage = (page) => api.get(`/products?${toQuery({
-    category: slug,
-    sub: subs.join(','),
-    tags: tags.join(','),
-    min: minParam,
-    max: maxParam,
-    inStock,
-    page,
-    limit: LIMIT,
-  })}`);
+  // form — то, что вводит пользователь, filter — применённые значения (кнопка «Применить»)
+  const emptyFilter = { min: '', max: '', sub: '', inStock: false };
+  const [form, setForm] = useState(emptyFilter);
+  const [filter, setFilter] = useState(emptyFilter);
 
   useEffect(() => {
-    setLoading(true);
-    fetchPage(urlPage)
-      .then((data) => {
-        setItems(data.items);
-        setLoaded(data.page);
-        setMeta({ total: data.total, pages: data.pages, priceRange: data.priceRange });
-        setError('');
+    fetch(`http://localhost:3000/api/products?category=${slug}`)
+      .then(res => res.json())
+      .then(data => {
+        setProducts(Array.isArray(data) ? data : []);
+        setError(false);
       })
-      .catch(() => setError('Не удалось загрузить товары. Проверьте, что запущен backend.'))
-      .finally(() => setLoading(false));
+      .catch(() => setError(true));
+    setForm(emptyFilter);
+    setFilter(emptyFilter);
+    setTags([]);
+    setShown(STEP);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtersKey]);
+  }, [slug]);
 
-  const showMore = () => {
-    setLoading(true);
-    fetchPage(loaded + 1)
-      .then((data) => {
-        setItems((current) => [...current, ...data.items]);
-        setLoaded(data.page);
-      })
-      .catch(() => setError('Не удалось загрузить товары'))
-      .finally(() => setLoading(false));
+  // границы цены и список подкатегорий берём из товаров категории
+  const prices = products.map(getPrice);
+  const minBound = prices.length ? Math.floor(Math.min(...prices)) : 0;
+  const maxBound = prices.length ? Math.ceil(Math.max(...prices)) : 0;
+  const subcategories = [...new Set(products.map(p => p.subcategory).filter(Boolean))];
+
+  const lo = form.min === '' ? minBound : Number(form.min);
+  const hi = form.max === '' ? maxBound : Number(form.max);
+
+  const filtered = products.filter(p => {
+    if (filter.min !== '' && getPrice(p) < Number(filter.min)) return false;
+    if (filter.max !== '' && getPrice(p) > Number(filter.max)) return false;
+    if (filter.sub && p.subcategory !== filter.sub) return false;
+    if (filter.inStock && !p.in_stock) return false;
+    return tags.every(tag => p[tag]);
+  });
+
+  const pages = Math.max(Math.ceil(filtered.length / STEP), 1);
+  const page = Math.min(Math.ceil(shown / STEP), pages);
+
+  const toggleTag = (key) => {
+    setTags(tags.includes(key) ? tags.filter(t => t !== key) : [...tags, key]);
+    setShown(STEP);
   };
 
-  const subcategories = category ? category.subcategories : [];
-  const bounds = meta.priceRange;
-  const lo = draft.min === '' ? bounds.min : Number(draft.min);
-  const hi = draft.max === '' ? bounds.max : Number(draft.max);
-
-  const update = (changes) => {
-    const next = new URLSearchParams(params);
-    Object.entries(changes).forEach(([key, value]) => {
-      if (value === '' || value === null || value === false || (Array.isArray(value) && value.length === 0)) next.delete(key);
-      else next.set(key, Array.isArray(value) ? value.join(',') : value === true ? '1' : value);
-    });
-    if (!('page' in changes)) next.delete('page');
-    setParams(next);
-  };
-
-  const applyDraft = () => {
-    const clampedMin = draft.min !== '' && Number(draft.min) > bounds.min ? draft.min : '';
-    const clampedMax = draft.max !== '' && Number(draft.max) < bounds.max ? draft.max : '';
-    update({ sub: draft.subs, min: clampedMin, max: clampedMax, inStock: draft.inStock });
+  const apply = () => {
+    setFilter(form);
+    setShown(STEP);
     setFilterOpen(false);
   };
 
-  const toggleTag = (key) => update({ tags: tags.includes(key) ? tags.filter((t) => t !== key) : [...tags, key] });
-  const toggleDraftSub = (subSlug) => setDraft((d) => ({
-    ...d,
-    subs: d.subs.includes(subSlug) ? d.subs.filter((s) => s !== subSlug) : [...d.subs, subSlug],
-  }));
+  const clearAll = () => {
+    setForm(emptyFilter);
+    setFilter(emptyFilter);
+    setTags([]);
+    setShown(STEP);
+  };
 
-  const chips = useMemo(() => {
-    const list = [];
-    subs.forEach((s) => {
-      const sub = subcategories.find((x) => x.slug === s);
-      if (sub) list.push({ key: `sub-${s}`, title: sub.title, remove: () => update({ sub: subs.filter((x) => x !== s) }) });
-    });
-    if (minParam || maxParam) {
-      const from = minParam || bounds.min;
-      const to = maxParam || bounds.max;
-      list.push({ key: 'price', title: `Цена от ${from} до ${to}`, remove: () => update({ min: '', max: '' }) });
-    }
-    if (inStock) list.push({ key: 'stock', title: 'В наличии', remove: () => update({ inStock: false }) });
-    tags.forEach((t) => {
-      const tag = TAGS.find((x) => x.key === t);
-      if (tag) list.push({ key: `tag-${t}`, title: tag.title, remove: () => toggleTag(t) });
-    });
-    return list;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params, subcategories, bounds.min, bounds.max]);
+  const hasFilter = filter.min !== '' || filter.max !== '' || filter.sub || filter.inStock || tags.length > 0;
 
-  const clearAll = () => setParams(new URLSearchParams());
-
-  const chipsBlock = chips.length > 0 && (
+  const chipsBlock = hasFilter && (
     <div className="category_chips">
-      {chips.map((chip) => (
-        <button className="category_chip" key={chip.key} onClick={chip.remove}>
-          <span>{chip.title}</span>
+      {filter.sub && (
+        <button className="category_chip" onClick={() => { setForm({ ...form, sub: '' }); setFilter({ ...filter, sub: '' }); }}>
+          <span>{filter.sub}</span>
           <IconClose size={18} />
         </button>
-      ))}
+      )}
+      {(filter.min !== '' || filter.max !== '') && (
+        <button className="category_chip" onClick={() => { setForm({ ...form, min: '', max: '' }); setFilter({ ...filter, min: '', max: '' }); }}>
+          <span>Цена от {filter.min === '' ? minBound : filter.min} до {filter.max === '' ? maxBound : filter.max}</span>
+          <IconClose size={18} />
+        </button>
+      )}
+      {filter.inStock && (
+        <button className="category_chip" onClick={() => { setForm({ ...form, inStock: false }); setFilter({ ...filter, inStock: false }); }}>
+          <span>В наличии</span>
+          <IconClose size={18} />
+        </button>
+      )}
       <button className="category_chip clear" onClick={clearAll}>
         <span>Очистить фильтры</span>
         <IconClose size={18} />
       </button>
     </div>
   );
-
-  if (!category && categories.length > 0) {
-    return (
-      <div className="page_wrapper">
-        <Header />
-        <main className="page_main">
-          <div className="page_container">
-            <div className="empty_state"><div className="empty_state_title">Категория не найдена</div></div>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
 
   return (
     <div className="page_wrapper">
@@ -176,10 +127,10 @@ export default function Category() {
             { title: 'Каталог', to: '/catalog' },
             { title: category ? category.title : '' },
           ]} />
-          <h1 className="page_title category_title">{category ? category.title : ''}</h1>
+          <h1 className="page_title category_title">{category ? category.title : 'Категория'}</h1>
 
           <div className="category_tags">
-            {TAGS.map((tag) => (
+            {tagList.map((tag) => (
               <button
                 key={tag.key}
                 className={`category_tag ${tags.includes(tag.key) ? 'active' : ''}`}
@@ -208,10 +159,7 @@ export default function Category() {
               <div className="category_filter_block">
                 <div className="category_filter_row">
                   <span className="category_filter_label">Цена</span>
-                  <button
-                    className="category_filter_clear"
-                    onClick={() => setDraft((d) => ({ ...d, min: '', max: '' }))}
-                  >
+                  <button className="category_filter_clear" onClick={() => setForm({ ...form, min: '', max: '' })}>
                     Очистить
                   </button>
                 </div>
@@ -221,18 +169,14 @@ export default function Category() {
                     className="category_price_input"
                     type="number"
                     value={lo}
-                    min={bounds.min}
-                    max={bounds.max}
-                    onChange={(e) => setDraft((d) => ({ ...d, min: e.target.value }))}
+                    onChange={(e) => setForm({ ...form, min: e.target.value })}
                   />
                   <span className="category_price_dash">—</span>
                   <input
                     className="category_price_input"
                     type="number"
                     value={hi}
-                    min={bounds.min}
-                    max={bounds.max}
-                    onChange={(e) => setDraft((d) => ({ ...d, max: e.target.value }))}
+                    onChange={(e) => setForm({ ...form, max: e.target.value })}
                   />
                 </div>
 
@@ -241,27 +185,25 @@ export default function Category() {
                   <div
                     className="category_slider_range"
                     style={{
-                      left: `${bounds.max > bounds.min ? ((lo - bounds.min) / (bounds.max - bounds.min)) * 100 : 0}%`,
-                      right: `${bounds.max > bounds.min ? 100 - ((hi - bounds.min) / (bounds.max - bounds.min)) * 100 : 0}%`,
+                      left: `${maxBound > minBound ? ((lo - minBound) / (maxBound - minBound)) * 100 : 0}%`,
+                      right: `${maxBound > minBound ? 100 - ((hi - minBound) / (maxBound - minBound)) * 100 : 0}%`,
                     }}
                   />
                   <input
                     className="category_slider_input"
                     type="range"
-                    min={bounds.min}
-                    max={bounds.max}
+                    min={minBound}
+                    max={maxBound}
                     value={lo}
-                    onChange={(e) => setDraft((d) => ({ ...d, min: String(Math.min(Number(e.target.value), hi)) }))}
-                    aria-label="Минимальная цена"
+                    onChange={(e) => setForm({ ...form, min: String(Math.min(Number(e.target.value), hi)) })}
                   />
                   <input
                     className="category_slider_input"
                     type="range"
-                    min={bounds.min}
-                    max={bounds.max}
+                    min={minBound}
+                    max={maxBound}
                     value={hi}
-                    onChange={(e) => setDraft((d) => ({ ...d, max: String(Math.max(Number(e.target.value), lo)) }))}
-                    aria-label="Максимальная цена"
+                    onChange={(e) => setForm({ ...form, max: String(Math.max(Number(e.target.value), lo)) })}
                   />
                 </div>
               </div>
@@ -269,12 +211,12 @@ export default function Category() {
               {subcategories.length > 0 && (
                 <ul className="category_subs">
                   {subcategories.map((sub) => (
-                    <li key={sub.id}>
+                    <li key={sub}>
                       <button
-                        className={`category_sub ${draft.subs.includes(sub.slug) ? 'active' : ''}`}
-                        onClick={() => toggleDraftSub(sub.slug)}
+                        className={`category_sub ${form.sub === sub ? 'active' : ''}`}
+                        onClick={() => setForm({ ...form, sub: form.sub === sub ? '' : sub })}
                       >
-                        {sub.title}
+                        {sub}
                       </button>
                     </li>
                   ))}
@@ -284,43 +226,44 @@ export default function Category() {
               <label className="category_switch">
                 <input
                   type="checkbox"
-                  checked={draft.inStock}
-                  onChange={(e) => setDraft((d) => ({ ...d, inStock: e.target.checked }))}
+                  checked={form.inStock}
+                  onChange={(e) => setForm({ ...form, inStock: e.target.checked })}
                 />
                 <span className="category_switch_track"><span className="category_switch_thumb" /></span>
                 <span className="category_switch_label">В наличии</span>
               </label>
 
-              <button className="category_apply" onClick={applyDraft}>Применить</button>
+              <button className="category_apply" onClick={apply}>Применить</button>
             </aside>
 
             <section className="category_content">
               <div className="category_chips_desktop">{chipsBlock}</div>
 
-              {error && <div className="empty_state"><div className="empty_state_title">{error}</div></div>}
+              {error && (
+                <div className="empty_state">
+                  <div className="empty_state_title">Не удалось загрузить товары. Проверьте, что запущен сервер.</div>
+                </div>
+              )}
 
-              {!error && !loading && items.length === 0 && (
+              {!error && filtered.length === 0 && (
                 <div className="empty_state">
                   <div className="empty_state_title">Товары не найдены</div>
                   <p>Попробуйте изменить или сбросить фильтры</p>
                 </div>
               )}
 
-              {items.length > 0 && <ProductGrid products={items} columns={3} />}
+              {filtered.length > 0 && <ProductGrid products={filtered.slice(0, shown)} columns={3} />}
 
-              {loaded < meta.pages && (
+              {shown < filtered.length && (
                 <div className="category_more">
-                  <button className="category_more_btn" disabled={loading} onClick={showMore}>Показать ещё</button>
+                  <button className="category_more_btn" onClick={() => setShown(shown + STEP)}>Показать ещё</button>
                 </div>
               )}
 
               <Pagination
-                page={loaded}
-                pages={meta.pages}
-                onChange={(page) => {
-                  update({ page: page === 1 ? '' : page });
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
+                page={page}
+                pages={pages}
+                onChange={(n) => setShown(n * STEP)}
               />
             </section>
           </div>

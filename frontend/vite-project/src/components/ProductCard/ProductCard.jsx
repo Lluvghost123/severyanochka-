@@ -1,35 +1,30 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useApp } from '../../context/AppContext.jsx';
-import { formatPrice } from '../../utils/format.js';
+import { formatPrice, getDiscount } from '../../utils/format.js';
 import { IconHeart } from '../Icons/Icons.jsx';
 import Stars from '../Stars/Stars.jsx';
 import './ProductCard.scss';
 
 export default function ProductCard({ product }) {
-  const { favorites, cart, toggleFavorite, setQuantity } = useApp();
-  const isFavorite = favorites.includes(product.id);
-  const quantity = cart[product.id] || 0;
+  const [liked, setLiked] = useState(false);
+  const [inCart, setInCart] = useState(false);
+
+  const discount = getDiscount(product);
   const hasCardPrice = product.card_price !== null && product.card_price !== undefined;
-  const isPhoto = product.image && product.image.includes('/photo_');
 
   return (
     <article className={`product_card ${!product.in_stock ? 'unavailable' : ''}`}>
       <Link to={`/product/${product.id}`} className="product_card_image_wrap">
-        <img
-          className={`product_card_image ${isPhoto ? 'cover' : ''}`}
-          src={product.image}
-          alt={product.title}
-          loading="lazy"
-        />
-        {product.discount ? <span className="product_card_badge">-{product.discount}%</span> : null}
+        <img className="product_card_image" src={product.image} alt={product.title} />
+        {discount > 0 && <span className="product_card_badge">-{discount}%</span>}
       </Link>
 
       <button
-        className={`product_card_fav ${isFavorite ? 'active' : ''}`}
-        onClick={() => toggleFavorite(product.id)}
-        aria-label={isFavorite ? 'Убрать из избранного' : 'В избранное'}
+        className={`product_card_fav ${liked ? 'active' : ''}`}
+        onClick={() => setLiked(!liked)}
+        aria-label="В избранное"
       >
-        <IconHeart size={24} filled={isFavorite} />
+        <IconHeart size={24} filled={liked} />
       </button>
 
       <div className="product_card_body">
@@ -51,21 +46,18 @@ export default function ProductCard({ product }) {
         <Link to={`/product/${product.id}`} className="product_card_title">{product.title}</Link>
 
         <div className="product_card_rating">
-          <Stars value={product.rating} size={16} />
+          <Stars value={Number(product.rating)} size={16} />
         </div>
 
         {!product.in_stock ? (
           <button className="product_card_btn disabled" disabled>Нет в наличии</button>
-        ) : quantity === 0 ? (
-          <button className="product_card_btn" onClick={() => setQuantity(product.id, 1)}>
-            В корзину
-          </button>
         ) : (
-          <div className="product_card_stepper">
-            <button className="product_card_step" onClick={() => setQuantity(product.id, quantity - 1)} aria-label="Меньше">−</button>
-            <Link to="/cart" className="product_card_qty">{quantity} в корзине</Link>
-            <button className="product_card_step" onClick={() => setQuantity(product.id, quantity + 1)} aria-label="Больше">+</button>
-          </div>
+          <button
+            className={`product_card_btn ${inCart ? 'active' : ''}`}
+            onClick={() => setInCart(!inCart)}
+          >
+            {inCart ? 'В корзине' : 'В корзину'}
+          </button>
         )}
       </div>
     </article>

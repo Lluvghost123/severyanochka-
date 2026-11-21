@@ -1,31 +1,22 @@
-const priceFormat = new Intl.NumberFormat('ru-RU', {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
-
+// Цена: 1234.5 -> "1 234,50 ₽"
 export function formatPrice(value) {
   if (value === null || value === undefined) return '';
-  return `${priceFormat.format(value)} ₽`;
+  return Number(value).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₽';
 }
 
+// Дата: 2026-11-20 -> "20.11.2026"
 export function formatDate(value) {
   if (!value) return '';
-  return new Date(value).toLocaleDateString('ru-RU', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
+  return new Date(value).toLocaleDateString('ru-RU');
 }
 
-export function plural(n, forms) {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return forms[0];
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return forms[1];
-  return forms[2];
+// Скидка в процентах по обычной цене и цене по карте
+export function getDiscount(product) {
+  if (!product.is_promo || !product.card_price) return 0;
+  return Math.round((1 - product.card_price / product.price) * 100);
 }
 
-// +7 912 345-67-89 — маска телефона
+// Телефон: 89123456789 -> "+7 912 345-67-89"
 export function maskPhone(raw) {
   let digits = String(raw).replace(/\D/g, '');
   if (digits.startsWith('8')) digits = '7' + digits.slice(1);
@@ -39,9 +30,3 @@ export function maskPhone(raw) {
   if (p.length > 8) out += '-' + p.slice(8, 10);
   return out;
 }
-
-export const ORDER_STATUS = {
-  new: 'Принят',
-  assembling: 'Собирается',
-  delivered: 'Доставлен',
-};

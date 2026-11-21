@@ -6,14 +6,11 @@ import '@fontsource/rubik/500.css'
 import '@fontsource/rubik/700.css'
 import './index.scss'
 import App from './App.jsx'
-import { AppProvider } from './context/AppContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <AppProvider>
-        <App />
-      </AppProvider>
+      <App />
     </BrowserRouter>
   </StrictMode>,
 )

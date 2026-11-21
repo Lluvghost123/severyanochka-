@@ -1,15 +1,24 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useCategories } from '../../utils/useCategories.js';
-import { useTitle } from '../../utils/useTitle.js';
+import { fallbackCategories } from '../../data/fallback.js';
 import Header from '../../components/Header/Header.jsx';
 import Footer from '../../components/Footer/Footer.jsx';
 import Breadcrumbs from '../../components/Breadcrumbs/Breadcrumbs.jsx';
 import './Catalog.scss';
 
 export default function Catalog() {
-  useTitle('Каталог');
-  const categories = useCategories();
-  const tiles = [...categories].sort((a, b) => a.sort_order - b.sort_order);
+  const [categories, setCategories] = useState(fallbackCategories);
+
+  useEffect(() => {
+    fetch('http://localhost:3000/api/categories')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setCategories(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="page_wrapper">
@@ -20,7 +29,7 @@ export default function Catalog() {
           <h1 className="page_title">Каталог</h1>
 
           <div className="catalog_grid">
-            {tiles.map((category) => (
+            {categories.map((category) => (
               <Link
                 key={category.id}
                 to={`/category/${category.slug}`}

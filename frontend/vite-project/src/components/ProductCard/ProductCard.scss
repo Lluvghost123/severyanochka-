@@ -22,9 +22,6 @@
       height: 100%;
       object-fit: contain;
 
-      &.cover {
-        object-fit: cover;
-      }
     }
 
     .product_card_badge {
@@ -139,41 +136,16 @@
       font-size: 16px;
       transition: background $trans, color $trans, border-color $trans;
 
+      &.active {
+        background: $orange;
+        border-color: $orange;
+        color: #fff;
+      }
+
       &.disabled {
         border-color: $border;
         color: $text-light;
         cursor: default;
-      }
-    }
-
-    .product_card_stepper {
-      margin-top: auto;
-      display: flex;
-      height: 40px;
-      border: 1px solid $orange;
-      border-radius: 2px;
-      overflow: hidden;
-
-      .product_card_step {
-        width: 44px;
-        font-size: 22px;
-        color: $orange;
-        transition: background $trans, color $trans;
-
-        &:hover {
-          background: $orange;
-          color: #fff;
-        }
-      }
-
-      .product_card_qty {
-        flex: 1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 14px;
-        color: $text;
-        white-space: nowrap;
       }
     }
   }
@@ -241,9 +213,6 @@
         font-size: 14px;
       }
 
-      .product_card_stepper .product_card_qty {
-        font-size: 12px;
-      }
     }
   }
 }

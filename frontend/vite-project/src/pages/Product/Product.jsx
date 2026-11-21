@@ -1,70 +1,62 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { api } from '../../api/api.js';
-import { useApp } from '../../context/AppContext.jsx';
-import { fallbackPromo } from '../../data/fallback.js';
-import { formatDate, formatPrice, plural } from '../../utils/format.js';
-import { useTitle } from '../../utils/useTitle.js';
+import { fallbackNews, fallbackPromo } from '../../data/fallback.js';
+import { formatDate, formatPrice, getDiscount } from '../../utils/format.js';
 import Header from '../../components/Header/Header.jsx';
 import Footer from '../../components/Footer/Footer.jsx';
 import Breadcrumbs from '../../components/Breadcrumbs/Breadcrumbs.jsx';
 import ProductGrid from '../../components/ProductGrid/ProductGrid.jsx';
 import ProductSection from '../../components/Home/ProductSection.jsx';
 import Stars from '../../components/Stars/Stars.jsx';
-import {
-  IconBell, IconCart, IconHeart, IconInfo, IconLeaf, IconShare, IconUser,
-} from '../../components/Icons/Icons.jsx';
+import { IconBell, IconCart, IconHeart, IconInfo, IconLeaf, IconShare, IconUser } from '../../components/Icons/Icons.jsx';
 import './Product.scss';
 
 export default function Product() {
   const { id } = useParams();
-  const { user, favorites, cart, toggleFavorite, setQuantity, requireAuth, showToast } = useApp();
   const [product, setProduct] = useState(null);
-  const [error, setError] = useState('');
-  const [activeImage, setActiveImage] = useState(0);
+  const [error, setError] = useState(false);
   const [promo, setPromo] = useState(fallbackPromo);
+  const [together, setTogether] = useState(fallbackNews);
+
+  const [liked, setLiked] = useState(false);
+  const [inCart, setInCart] = useState(false);
+  const [alertOn, setAlertOn] = useState(false);
 
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [text, setText] = useState('');
-  const [sending, setSending] = useState(false);
-
-  useTitle(product ? product.title : 'Товар');
-
-  const load = () => api.get(`/products/${id}`)
-    .then((data) => {
-      setProduct(data);
-      setError('');
-    })
-    .catch((e) => {
-      setProduct(null);
-      setError(e.status === 404 ? 'Товар не найден' : 'Не удалось загрузить товар. Проверьте, что запущен backend.');
-    });
 
   useEffect(() => {
-    setActiveImage(0);
-    setRating(0);
-    setText('');
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, user]);
+    setProduct(null);
+    setError(false);
+    fetch(`http://localhost:3000/api/products/${id}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Not found');
+        return res.json();
+      })
+      .then(data => setProduct(data))
+      .catch(() => setError(true));
 
-  useEffect(() => {
-    api.get('/home?limit=4').then((data) => data.promo.length && setPromo(data.promo)).catch(() => {});
-  }, []);
+    fetch('http://localhost:3000/api/products?promo=1&limit=4')
+      .then(res => res.json())
+      .then(data => data.length > 0 && setPromo(data))
+      .catch(() => {});
 
-  if (!product) {
+    fetch('http://localhost:3000/api/products?isNew=1&limit=4')
+      .then(res => res.json())
+      .then(data => data.length > 0 && setTogether(data))
+      .catch(() => {});
+  }, [id]);
+
+  if (error || !product) {
     return (
       <div className="page_wrapper">
         <Header />
         <main className="page_main">
           <div className="page_container">
-            {error && (
-              <div className="empty_state">
-                <div className="empty_state_title">{error}</div>
-                <Link to="/catalog" className="empty_state_btn">Перейти в каталог</Link>
-              </div>
-            )}
+            <div className="empty_state">
+              <div className="empty_state_title">{error ? 'Товар не найден' : 'Загрузка…'}</div>
+            </div>
           </div>
         </main>
         <Footer />
@@ -72,58 +64,43 @@ export default function Product() {
     );
   }
 
-  const isFavorite = favorites.includes(product.id);
-  const quantity = cart[product.id] || 0;
+  const discount = getDiscount(product);
   const hasCardPrice = product.card_price !== null;
-  const gallery = product.images.length > 0 ? product.images : [''];
-  const isPhoto = gallery[activeImage].includes('/photo_');
+  const reviews = product.reviews;
 
-  const rows = [
-    ['Бренд', product.brand],
-    ['Страна производителя', product.country],
-    ['Упаковка', product.package],
-    ...Object.entries(product.specs || {}).filter(([key]) => key !== 'Упаковка'),
-  ].filter(([, value]) => value);
+  // средняя оценка и количество оценок по звёздам считаем из списка отзывов
+  const average = reviews.length ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
+  const counts = [5, 4, 3, 2, 1].map(stars => ({
+    stars,
+    count: reviews.filter(r => r.rating === stars).length,
+  }));
 
-  const share = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      showToast('Ссылка на товар скопирована');
-    } catch {
-      showToast('Не удалось скопировать ссылку');
-    }
-  };
-
-  const toggleAlert = async () => {
-    if (!requireAuth()) return;
-    try {
-      const data = await api.post(`/products/${product.id}/price-alert`);
-      setProduct((p) => ({ ...p, price_alert: data.active }));
-      showToast(data.active ? 'Сообщим, когда цена снизится' : 'Уведомление отключено');
-    } catch (e) {
-      showToast(e.message);
-    }
-  };
-
-  const sendReview = async (event) => {
+  const sendReview = (event) => {
     event.preventDefault();
-    if (!requireAuth() || rating === 0 || text.trim().length < 3) return;
-    setSending(true);
+    let author = 'Гость';
     try {
-      await api.post(`/products/${product.id}/reviews`, { rating, text });
-      setRating(0);
-      setText('');
-      await load();
-      showToast('Спасибо за отзыв!');
-    } catch (e) {
-      showToast(e.message);
-    } finally {
-      setSending(false);
+      const saved = localStorage.getItem('user');
+      if (saved) author = JSON.parse(saved).name;
+    } catch {
+      // без входа отзыв уйдёт от гостя
     }
+
+    fetch('http://localhost:3000/api/reviews', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ product_id: product.id, author, rating, text: text.trim() }),
+    })
+      .then(res => res.json())
+      .then(review => {
+        if (review.error) return;
+        setProduct({ ...product, reviews: [review, ...reviews] });
+        setRating(0);
+        setText('');
+      })
+      .catch(() => {});
   };
 
-  const canSend = rating > 0 && text.trim().length >= 3 && !sending;
-  const total = product.distribution.reduce((s, d) => s + d.count, 0);
+  const canSend = rating > 0 && text.trim().length >= 3;
 
   return (
     <div className="page_wrapper">
@@ -142,37 +119,29 @@ export default function Product() {
           <div className="product_meta">
             <span className="product_article">арт. {product.article}</span>
             <span className="product_meta_rating">
-              <Stars value={product.rating} size={16} />
-              <a className="product_reviews_link" href="#reviews">
-                {product.reviews_count} {plural(product.reviews_count, ['отзыв', 'отзыва', 'отзывов'])}
-              </a>
+              <Stars value={Math.round(average)} size={16} />
+              <a className="product_reviews_link" href="#reviews">{reviews.length} отзывов</a>
             </span>
-            <button className="product_meta_btn" onClick={share}>
+            <button className="product_meta_btn" onClick={() => navigator.clipboard.writeText(window.location.href)}>
               <IconShare size={24} />
               <span>Поделиться</span>
             </button>
-            <button className={`product_meta_btn ${isFavorite ? 'active' : ''}`} onClick={() => toggleFavorite(product.id)}>
-              <IconHeart size={24} filled={isFavorite} />
-              <span>{isFavorite ? 'В избранном' : 'В избранное'}</span>
+            <button className={`product_meta_btn ${liked ? 'active' : ''}`} onClick={() => setLiked(!liked)}>
+              <IconHeart size={24} filled={liked} />
+              <span>{liked ? 'В избранном' : 'В избранное'}</span>
             </button>
           </div>
 
           <div className="product_top">
             <div className="product_thumbs">
-              {gallery.map((src, index) => (
-                <button
-                  key={`${src}-${index}`}
-                  className={`product_thumb ${index === activeImage ? 'active' : ''}`}
-                  onClick={() => setActiveImage(index)}
-                >
-                  <img src={src} alt="" />
-                </button>
-              ))}
+              <button className="product_thumb active">
+                <img src={product.image} alt="" />
+              </button>
             </div>
 
             <div className="product_gallery">
-              <img className={`product_gallery_img ${isPhoto ? 'cover' : ''}`} src={gallery[activeImage]} alt={product.title} />
-              {product.discount ? <span className="product_badge">-{product.discount}%</span> : null}
+              <img className="product_gallery_img" src={product.image} alt={product.title} />
+              {discount > 0 && <span className="product_badge">-{discount}%</span>}
             </div>
 
             <div className="product_info">
@@ -188,47 +157,47 @@ export default function Product() {
                   {hasCardPrice && (
                     <span className="product_price_label">
                       С картой Северяночка
-                      <span className="product_price_hint" title="Цена действует при предъявлении карты покупателя"><IconInfo size={22} /></span>
+                      <span className="product_price_hint"><IconInfo size={22} /></span>
                     </span>
                   )}
                 </div>
               </div>
 
-              {!product.in_stock ? (
-                <button className="product_buy disabled" disabled>Нет в наличии</button>
-              ) : quantity === 0 ? (
-                <button className="product_buy" onClick={() => setQuantity(product.id, 1)}>
+              {product.in_stock ? (
+                <button className={`product_buy ${inCart ? 'active' : ''}`} onClick={() => setInCart(!inCart)}>
                   <IconCart size={32} />
-                  <span>В корзину</span>
+                  <span>{inCart ? 'В корзине' : 'В корзину'}</span>
                 </button>
               ) : (
-                <div className="product_stepper">
-                  <button className="product_step" onClick={() => setQuantity(product.id, quantity - 1)} aria-label="Меньше">−</button>
-                  <Link to="/cart" className="product_stepper_text">{quantity} в корзине · перейти</Link>
-                  <button className="product_step" onClick={() => setQuantity(product.id, quantity + 1)} aria-label="Больше">+</button>
-                </div>
+                <button className="product_buy disabled" disabled>Нет в наличии</button>
               )}
 
               {product.bonus > 0 && (
                 <div className="product_bonus">
                   <IconLeaf size={22} />
-                  <span>Вы получаете <b>{product.bonus} {plural(product.bonus, ['бонус', 'бонуса', 'бонусов'])}</b></span>
+                  <span>Вы получаете <b>{product.bonus} бонусов</b></span>
                 </div>
               )}
 
-              <button className={`product_alert ${product.price_alert ? 'active' : ''}`} onClick={toggleAlert}>
-                <IconBell size={26} off={!product.price_alert} />
-                <span>{product.price_alert ? 'Сообщим о снижении цены' : 'Уведомить о снижении цены'}</span>
+              <button className={`product_alert ${alertOn ? 'active' : ''}`} onClick={() => setAlertOn(!alertOn)}>
+                <IconBell size={26} off={!alertOn} />
+                <span>{alertOn ? 'Сообщим о снижении цены' : 'Уведомить о снижении цены'}</span>
               </button>
 
               <table className="product_specs">
                 <tbody>
-                  {rows.map(([name, value]) => (
-                    <tr key={name}>
-                      <td className="product_specs_name">{name}</td>
-                      <td className="product_specs_value">{value}</td>
-                    </tr>
-                  ))}
+                  <tr>
+                    <td className="product_specs_name">Бренд</td>
+                    <td className="product_specs_value">{product.brand}</td>
+                  </tr>
+                  <tr>
+                    <td className="product_specs_name">Страна производителя</td>
+                    <td className="product_specs_value">{product.country}</td>
+                  </tr>
+                  <tr>
+                    <td className="product_specs_name">Упаковка</td>
+                    <td className="product_specs_value">{product.package}</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -237,26 +206,20 @@ export default function Product() {
               <div className="product_similar_title">Похожие</div>
               {product.similar.map((item) => (
                 <Link key={item.id} to={`/product/${item.id}`} className="product_similar_card">
-                  <img
-                    className={`product_similar_img ${item.image && item.image.includes('/photo_') ? 'cover' : ''}`}
-                    src={item.image}
-                    alt={item.title}
-                  />
-                  <span className="product_similar_price">{formatPrice(item.card_price ?? item.price)}</span>
+                  <img className="product_similar_img" src={item.image} alt={item.title} />
+                  <span className="product_similar_price">{formatPrice(item.card_price || item.price)}</span>
                 </Link>
               ))}
             </aside>
           </div>
         </div>
 
-        {product.related.length > 0 && (
-          <section className="product_block">
-            <div className="page_container">
-              <h2 className="section_title product_block_title">С этим товаром покупают</h2>
-              <ProductGrid products={product.related} />
-            </div>
-          </section>
-        )}
+        <section className="product_block">
+          <div className="page_container">
+            <h2 className="section_title product_block_title">С этим товаром покупают</h2>
+            <ProductGrid products={together} />
+          </div>
+        </section>
 
         <section className="product_block" id="reviews">
           <div className="page_container">
@@ -265,13 +228,13 @@ export default function Product() {
             <div className="reviews">
               <div className="reviews_summary">
                 <div className="reviews_avg">
-                  <Stars value={product.rating} size={16} />
+                  <Stars value={Math.round(average)} size={16} />
                   <span className="reviews_avg_text">
-                    {total > 0 ? `${String(product.rating_avg).replace('.', ',')} из 5` : 'Оценок пока нет'}
+                    {reviews.length > 0 ? `${average.toFixed(1).replace('.', ',')} из 5` : 'Оценок пока нет'}
                   </span>
                 </div>
                 <ul className="reviews_dist">
-                  {product.distribution.map((row) => (
+                  {counts.map((row) => (
                     <li className="reviews_dist_row" key={row.stars}>
                       <span className="reviews_dist_num">{row.stars}</span>
                       <Stars value={row.stars} size={16} />
@@ -283,7 +246,7 @@ export default function Product() {
 
               <div className="reviews_main">
                 <ul className="reviews_list">
-                  {product.reviews.map((review) => (
+                  {reviews.map((review) => (
                     <li className="reviews_item" key={review.id}>
                       <div className="reviews_author">
                         <span className="reviews_author_icon"><IconUser size={18} /></span>
@@ -296,7 +259,7 @@ export default function Product() {
                       <p className="reviews_text">{review.text}</p>
                     </li>
                   ))}
-                  {product.reviews.length === 0 && <li className="reviews_empty">Отзывов пока нет — станьте первым</li>}
+                  {reviews.length === 0 && <li className="reviews_empty">Отзывов пока нет — станьте первым</li>}
                 </ul>
 
                 <form className="reviews_form" onSubmit={sendReview}>
@@ -308,7 +271,6 @@ export default function Product() {
                     className="reviews_textarea"
                     placeholder="Отзыв"
                     value={text}
-                    maxLength={2000}
                     onChange={(e) => setText(e.target.value)}
                   />
                   <button className={`reviews_submit ${canSend ? 'active' : ''}`} type="submit" disabled={!canSend}>
